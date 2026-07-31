@@ -1,36 +1,37 @@
-# Desktop Java Calculator (SOLID Refactoring)
+# Desktop Shopping Action Tracker (Java Swing & AWT)
 
-A modular desktop application built with **Java Swing and AWT**, refactored to align with **SOLID design principles** and **Clean Code best practices**.
-
----
-
-## 📋 Overview
-This project was refactored from a tightly-coupled monolithic Swing component into a layered architecture. The interface presentation is isolated from state management and arithmetic calculation.
+A modular desktop application built with **Java Swing**, designed to track user operations and text transformations. The project has been refactored to enforce **SOLID principles**, isolating UI components from underlying event evaluation and business logic.
 
 ---
 
-## 🛠️ Refactoring & Architectural Improvements
+## 🏗️ Architecture & Package Structure
 
-### 1. Single Responsibility Principle (SRP)
-* **Before:** The original `Calculator` class managed UI layout, button creation, user interaction, arithmetic state, string manipulation, and mathematical evaluation.
-* **After:** Divided into distinct components:
-    * `Calculator.java`: Dedicated exclusively to Swing frame rendering, layout creation, and visual styling.
-    * `CalculatorEngine.java`: Pure Java business logic class handling operational state, string parsing, and arithmetic execution.
+The source code is organized within the `GUIprogramming.shopping` package:
 
-### 2. Clean Code & Safety Upgrades
-* **String Comparison Safety:** Replaced raw `==` string checks with string content methods (`.equals()`), preventing equality bugs in execution flow.
-* **Lambda Listeners:** Replaced standard `implements ActionListener` overhead with concise, inline Lambda expressions for event registration.
-* **Edge Case Handling:** Added divide-by-zero checks (`Error` state) and decimal duplicate prevention logic.
-* **Encapsulation:** Enforced `private final` immutability across UI constants and fields.
+```text
+src/
+└── GUIprogramming/
+    └── shopping/
+        ├── Action.java              # Data model representing single user operations
+        ├── ActionEngine.java        # Core business logic processing actions & transformations
+        ├── RoundedBorder.java       # Custom Swing UI component decorator
+        ├── RoundedButton.java       # Custom Swing UI button styling
+        ├── SimpleActionTracker.java # Main Swing JFrame UI presentation layer
+        └── TextConverter.java       # String formatting and text utility module
 
----
+🛠️ Key Architectural & Refactoring Highlights
 
-## 🚀 How to Run
+1. Single Responsibility Principle (SRP)
 
-### Prerequisites
-* **JDK 17** or higher installed.
+Presentation Layer (SimpleActionTracker): Responsible exclusively for building Swing frames, 
+managing layout managers, and capturing user interface events.
 
-### Execution
-1. Clone the repository:
-   ```bash
-   git clone [https://github.com/YOUR_USERNAME/Java-Calculator.git](https://github.com/YOUR_USERNAME/Java-Calculator.git)
+Business Logic (ActionEngine): Encapsulates core state management and operational evaluation, 
+completely decoupled from Swing components.
+
+Domain & Utilities (Action, TextConverter): Handles object modeling and string manipulation independently.
+
+2. Custom Swing Component Styling
+
+RoundedButton & RoundedBorder: Custom graphical extensions built over Java AWT/Swing to deliver clean, 
+modernized UI styling without relying on heavy external Look-and-Feel libraries.
