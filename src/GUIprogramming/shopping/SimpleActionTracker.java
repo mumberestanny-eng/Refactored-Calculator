@@ -3,11 +3,8 @@ package GUIprogramming.shopping;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.ArrayList;
 
 public class SimpleActionTracker extends JFrame {
-
 
         private JTextArea inputArea;
         private JPanel undoPanel;
@@ -18,18 +15,13 @@ public class SimpleActionTracker extends JFrame {
         public final Color BORDER_COLOR = new Color(70, 73, 75);
 
         private final ActionEngine actionController = new  ActionEngine();
-        private final TextConverter textConverter = new TextConverter();
+        private final LabelFactory textConverter = new LabelFactory();
 
         private final Font FONT_BUTTON = new Font("Lexend", Font.PLAIN, 15);
         private final Font FONT_LABEL = new Font("Arial", Font.PLAIN, 15);
 
-
-        private boolean undoActionFlag = false;
-        private boolean redoActionFlag = false;
-
         private final int MAX_GUI_HEIGHT = 500;
         private final int MAX_GUI_WIDTH = 700;
-
 
         public SimpleActionTracker() {
 
@@ -56,7 +48,6 @@ public class SimpleActionTracker extends JFrame {
             topPanel.setLayout(new BorderLayout(2, 2));
             topPanel.setBackground(DEFAULT_BG_COLOR);
 
-            topPanel.setBorder(BorderFactory.createEmptyBorder(4,4,4,4));
             topPanel.setBorder(BorderFactory.createTitledBorder(
                     new RoundedBorder(BORDER_COLOR, 2,15), "Action Command"
             ));
@@ -66,6 +57,7 @@ public class SimpleActionTracker extends JFrame {
 
             return topPanel;
         }
+
         private RoundedButton createPerformButton(){
 
             RoundedButton performButton = new RoundedButton("Perform Action", 15);
@@ -75,25 +67,27 @@ public class SimpleActionTracker extends JFrame {
 
             performButton.addActionListener((ActionEvent e) -> {
                 textHandler();
-                printPane();
+                printOnPane();
             });
             return performButton;
         }
+
         private JTextArea createInputArea(){
             inputArea = new JTextArea(1, 38);
             inputArea.setBackground(new Color(30, 14, 14));
 
             Font TextFieldFont = new Font("Times New Roman", Font.PLAIN, 18);
             inputArea.setFont(TextFieldFont);
-            inputArea.setForeground(new Color(193, 174, 122));
+            inputArea.setForeground(new Color(252, 252, 249, 255));
 
             return inputArea;
         }
+
         private JPanel createMidPanel(){
 
             JPanel midPanel = new JPanel();
             midPanel.setLayout(new GridLayout(1, 2));
-            midPanel.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
+
             midPanel.setBackground(DEFAULT_BG_COLOR);
             midPanel.setBorder(BorderFactory.createTitledBorder(
                     new RoundedBorder(DEFAULT_BG_COLOR, 2,15), "Inline Action Command"));
@@ -103,6 +97,7 @@ public class SimpleActionTracker extends JFrame {
 
             return midPanel;
         }
+
         private JScrollPane createRedoScrollPane(){
 
             redoPanel = new JPanel();
@@ -110,11 +105,12 @@ public class SimpleActionTracker extends JFrame {
             redoPanel.setBackground(new Color(60,63,65));
 
             JScrollPane redoScroll = new JScrollPane(redoPanel);
-            redoScroll.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
+
             redoScroll.setBorder(BorderFactory.createTitledBorder(
                     new RoundedBorder(BORDER_COLOR, 2, 15), "Undo Stack (undoStack)"));
             return redoScroll;
         }
+
         private JScrollPane createUndoScrollPane(){
 
             undoPanel = new JPanel();
@@ -122,7 +118,7 @@ public class SimpleActionTracker extends JFrame {
             undoPanel.setBackground(Color.gray);
 
             JScrollPane undoScroll = new JScrollPane(undoPanel);
-            undoScroll.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
+
             undoScroll.setBorder(BorderFactory.createTitledBorder(
                     new RoundedBorder(BORDER_COLOR, 2, 15), "Active History (history)"));
             return undoScroll;
@@ -137,7 +133,7 @@ public class SimpleActionTracker extends JFrame {
 
             bottomPanel.setBackground(DEFAULT_BG_COLOR);
             bottomPanel.setLayout(new BorderLayout(5,5));
-            bottomPanel.setBorder(BorderFactory.createEmptyBorder(3,3,3,3));
+
             bottomPanel.setBorder(BorderFactory.createTitledBorder(
                     new RoundedBorder(BORDER_COLOR, 2,15), "Control Panel"));
 
@@ -146,6 +142,7 @@ public class SimpleActionTracker extends JFrame {
 
             return bottomPanel;
         }
+
         private JPanel createBottomButtonContainer(){
 
             JPanel BottomButtonContainer = new JPanel();
@@ -158,6 +155,7 @@ public class SimpleActionTracker extends JFrame {
 
             return BottomButtonContainer;
         }
+
         private RoundedButton designUndoButton(){
 
             RoundedButton undoButton = new RoundedButton("Undo", 20);
@@ -166,15 +164,14 @@ public class SimpleActionTracker extends JFrame {
             undoButton.setFont(FONT_BUTTON);
 
             undoButton.addActionListener((ActionEvent e) -> {
-                undoActionFlag = true;
-                actionController.transferAction(undoActionFlag, redoActionFlag);
-                printPane();
-                undoActionFlag = false;
+                actionController.undo();
+                printOnPane();
             });
 
             return undoButton;
 
         }
+
         private RoundedButton designRedoButton(){
 
             RoundedButton  redoButton = new RoundedButton("Redo", 20);
@@ -182,10 +179,8 @@ public class SimpleActionTracker extends JFrame {
             redoButton.setForeground(Color.WHITE);
             redoButton.setFont(new Font("Arial", Font.PLAIN, 15));
             redoButton.addActionListener((ActionEvent e) -> {
-                redoActionFlag = true;
-                actionController.transferAction(undoActionFlag, redoActionFlag);
-                printPane();
-                redoActionFlag = false;
+                actionController.redo();
+                printOnPane();
             });
 
             return redoButton;
@@ -198,7 +193,8 @@ public class SimpleActionTracker extends JFrame {
             }
             inputArea.setText("");
         }
-        public void printPane(){
+
+        public void printOnPane(){
             undoPanel.removeAll();
             redoPanel.removeAll();
 
@@ -206,7 +202,7 @@ public class SimpleActionTracker extends JFrame {
                 undoPanel.add(lb);
             }
 
-            for (JLabel lb : textConverter.createUndoLabelCollection(actionController.getUndoStack())){
+            for (JLabel lb : textConverter.createActiveLabelCollection(actionController.getUndoStack())){
                 redoPanel.add(lb);
             }
             undoPanel.revalidate();
