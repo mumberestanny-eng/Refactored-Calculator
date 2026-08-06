@@ -1,36 +1,134 @@
-# Desktop Java Calculator (SOLID Refactoring)
+# Mechanic Workshop Analyser
 
-A modular desktop application built with **Java Swing and AWT**, refactored to align with **SOLID design principles** and **Clean Code best practices**.
-
----
-
-## 📋 Overview
-This project was refactored from a tightly-coupled monolithic Swing component into a layered architecture. The interface presentation is isolated from state management and arithmetic calculation.
+A modular, functional Java application designed to parse CSV datasets (`employees_100.csv`, parts files), 
+model core workshop domain entities, analyze inventory stock, and evaluate employee payroll metrics using 
+Java Streams and functional programming paradigms.
 
 ---
 
-## 🛠️ Refactoring & Architectural Improvements
+## Architecture & System Design
 
-### 1. Single Responsibility Principle (SRP)
-* **Before:** The original `Calculator` class managed UI layout, button creation, user interaction, arithmetic state, string manipulation, and mathematical evaluation.
-* **After:** Divided into distinct components:
-    * `Calculator.java`: Dedicated exclusively to Swing frame rendering, layout creation, and visual styling.
-    * `CalculatorEngine.java`: Pure Java business logic class handling operational state, string parsing, and arithmetic execution.
+The system relies on immutable domain models, custom CSV parsers, dedicated functional analytical modules, and main executable classes:
 
-### 2. Clean Code & Safety Upgrades
-* **String Comparison Safety:** Replaced raw `==` string checks with string content methods (`.equals()`), preventing equality bugs in execution flow.
-* **Lambda Listeners:** Replaced standard `implements ActionListener` overhead with concise, inline Lambda expressions for event registration.
-* **Edge Case Handling:** Added divide-by-zero checks (`Error` state) and decimal duplicate prevention logic.
-* **Encapsulation:** Enforced `private final` immutability across UI constants and fields.
+```text
+                           +------------------------+
+                           |     CsvFileParser      |
+                           +-----------+------------+
+                                       |
+                       +---------------+---------------+
+                       |                               |
+                       v                               v
+                +-------------+                 +--------------+
+                |    Part     |                 |   Employee   |
+                +------+------+                 +------+-------+
+                       |                               |
+                       v                               v
+           +-----------------------+       +-----------------------+
+           | WorkShopPartAnalyser  |       |WorkShopEmployeeAnalyser|
+           +-----------+-----------+       +-----------+-----------+
+                       |                               |
+                       v                               v
+           +-----------------------+       +-----------------------+
+           |     PartAnalyser      |       |   EmployeeAnalyser    |
+           |     (Main Entry)      |       |     (Main Entry)      |
+           +-----------------------+       +-----------------------+
 
----
+Core Domain Models
+Part (mechanic.Part): Models workshop inventory attributes:
 
-## 🚀 How to Run
+        **name (String)
+        **category (String)
+        **price (double)       
+        **stock (int)       
+        **supplier (String)
 
-### Prerequisites
-* **JDK 17** or higher installed.
+Employee (mechanic.Employee): Models workshop staff attributes:
 
-### Execution
-1. Clone the repository:
-   ```bash
-   git clone [https://github.com/YOUR_USERNAME/Java-Calculator.git](https://github.com/YOUR_USERNAME/Java-Calculator.git)
+        **name (String)       
+        **work (String)        
+        **department (String)        
+        **salary (double)
+
+Features
+📁 CSV File Parser (mechanic.workshop.partanalyser.csvhandler.CsvFileParser)
+Handles file I/O and converts CSV input lines into domain models:
+
+        **NIO File Reading: Uses Files.readAllLines for efficient parsing.       
+        **Validation & Cleaning: Automatically ignores CSV headers and drops lines that do not match expected column counts (5 columns for Part, 4 columns for Employee).        
+        **Ingestion: Trims whitespace and handles parsing operations gracefully.
+
+🛠️ Workshop Part Analyser (mechanic.workshop.partanalyser.WorkShopPartAnalyser)
+Provides detailed analytics and reporting for workshop inventory:
+
+        **Filtering & Ordering: Query parts by minimum price floor or custom stock thresholds.
+        **Reorder & Critical Stock Tracking: Identifies critical items (stock $\le 1$) and generates low-stock warnings (stock $< 3$).
+        **Group Aggregation: Computes category counts, supplier groupings, and category-level average prices.
+        **Financial Statistics: Summarizes full inventory monetary value ($Price \times Stock$) and outputs comprehensive metrics (DoubleSummaryStatistics).
+
+👥 Workshop Employee Analyser (mechanic.workshop.WorkShopEmployeeAnalyser)
+Delivers administration and payroll metrics:
+
+        **Staff Directory: Aggregates distinct employees, departments, and specific roles.
+        **Salary Analytics: Groups average salaries by department and role; highlights top earners and low-income thresholds.
+        **Hierarchical Sorting: Sorts employee records sequentially by Name $\rightarrow$ Salary (Descending) $\rightarrow$ Department $\rightarrow$ Role.
+        **Payroll Overview: Generates summary headcount, lowest, highest, and average compensation statistics.
+
+Exact Directory Structure
+
+        src/
+        ├── mechanic/
+        │   ├── Employee.java                         # Employee Entity Model
+        │   ├── Part.java                             # Part Entity Model
+        │   └── workshop/
+        │       ├── PartAnalyser.java                 # Main Executable: Inventory Analysis CLI
+        │       ├── WorkShopEmployeeAnalyser.java    # Employee Analytics Processor
+        │       └── partanalyser/
+        │           ├── EmployeeAnalyser.java         # Main Executable: Workforce Analysis CLI
+        │           ├── WorkShopPartAnalyser.java    # Inventory Analytics Processor
+        │           └── csvhandler/
+        │               └── CsvFileParser.java      # CSV Ingestion & Entity Transformer
+        ├── com/                                      # Application package
+        ├── GUIprogramming/                           # UI components
+        ├── shop/                                     # Shop module
+        │   └── Main.java                             # Application entry point
+        ├── employees_100.csv                         # Workforce Dataset
+        ├── Expenses.csv                              # Expenses Dataset
+        └── .gitignore                                # Git ignore file
+
+Requirements
+
+        ->Java Development Kit (JDK): 17 or higher (utilizes Stream.toList(), 
+        ->Files.readAllLines, and enhanced Java Streams API features).
+
+Expected Input CSV Specifications
+Parts CSV File (garage_parts_100.csv)
+Structure: Name, Category, Price, Stock, Supplier
+
+        Name, Category, Price, Stock, Supplier
+        Brake Pad, Brakes, 45.50, 12, Bosch
+        Oil Filter, Engine, 12.00, 2, Fram
+        Spark Plug, Engine, 8.75, 0, NGK
+
+Employees CSV File (employees_100.csv)
+Structure: Name, Work, Department, Salary
+
+        Name, Work, Department, Salary
+        John Doe, Mechanic, Maintenance, 45000.00
+        Jane Smith, Manager, Logistics, 65000.00
+
+How to Run
+1. Compile the Project
+Open a terminal in the root directory of the project containing the src/ folder and run:
+
+        javac -d bin $(find src -name "*.java")
+
+2. Execute Inventory Analysis (PartAnalyser)
+Executes the main entry point processing garage_parts_100.csv:
+
+        java -cp bin mechanic.workshop.PartAnalyser
+
+3. Execute Workforce & Payroll Analysis (EmployeeAnalyser)
+Executes the main entry point processing employees_100.csv:
+
+        java -cp bin mechanic.workshop.partanalyser.EmployeeAnalyser
+
