@@ -1,82 +1,134 @@
-# Expense Tracker Pro 📊
+# Mechanic Workshop Analyser
 
-A sleek, modern desktop Java Swing application designed to track personal expenses, compute total expenditure in real time, and export data directly to CSV files.
-
----
-
-## 🌟 Key Features
-
-* **Modern & Responsive UI:** Custom rounded buttons, custom borders, and dynamic component styling.
-* **Real-Time Total Calculation:** Instant aggregation and display of total expenditure.
-* **Input Validation & Safety:** Exception handling for invalid numeric prices and empty text inputs.
-* **CSV Data Export:** Clean export of itemized expenses to `.csv` format for easy reporting and accounting.
-* **Clean Architecture:** Built using Object-Oriented Principles (OOP) with clear separation between Data Models, State Controllers, File I/O, and Swing View components.
+A modular, functional Java application designed to parse CSV datasets (`employees_100.csv`, parts files), 
+model core workshop domain entities, analyze inventory stock, and evaluate employee payroll metrics using 
+Java Streams and functional programming paradigms.
 
 ---
 
-## 🏗️ Architecture & Project Structure
+## Architecture & System Design
 
-The project follows the **Separation of Concerns (SoC)** principle:
+The system relies on immutable domain models, custom CSV parsers, dedicated functional analytical modules, and main executable classes:
 
 ```text
-src/
-└── shop/
-    └── shoppingtracker/
-        ├── Expense.java                  # Pure immutable domain model
-        ├── ExpenseManager.java           # In-memory state controller & business logic
-        ├── ExpenseTrackerPro.java        # Swing GUI view & layout container
-        └── trackerstyling/
-            ├── RoundedBorder.java        # Custom border UI component
-            ├── RoundedButton.java        # Custom button UI component
-            └── ExportCSV/
-                └── ExportToCSV.java      # Dedicated CSV file I/O service
+                           +------------------------+
+                           |     CsvFileParser      |
+                           +-----------+------------+
+                                       |
+                       +---------------+---------------+
+                       |                               |
+                       v                               v
+                +-------------+                 +--------------+
+                |    Part     |                 |   Employee   |
+                +------+------+                 +------+-------+
+                       |                               |
+                       v                               v
+           +-----------------------+       +-----------------------+
+           | WorkShopPartAnalyser  |       |WorkShopEmployeeAnalyser|
+           +-----------+-----------+       +-----------+-----------+
+                       |                               |
+                       v                               v
+           +-----------------------+       +-----------------------+
+           |     PartAnalyser      |       |   EmployeeAnalyser    |
+           |     (Main Entry)      |       |     (Main Entry)      |
+           +-----------------------+       +-----------------------+
 
-🎨 Design Highlights & Architectural Principles
+Core Domain Models
+Part (mechanic.Part): Models workshop inventory attributes:
 
-Single Responsibility Principle (SRP):
+        **name (String)
+        **category (String)
+        **price (double)       
+        **stock (int)       
+        **supplier (String)
 
-   Expense: Encapsulates pure item attributes (name, amount).
-   ExpenseManager: Controls in-memory collection state (List<Expense>) and mathematical calculations.
-   ExportToCSV: Handles file output operations, directory selection, and string escaping completely decoupled from Swing logic.
-   ExpenseTrackerPro: Handles UI assembly, layout hierarchy, and event handling.
-   Encapsulation & Safety: Internal lists in ExpenseManager are exposed using Collections.unmodifiableList() to prevent unauthorized mutation from external classes.
-   Robust File I/O & CSV Formatting: Proper string escaping wraps entries containing commas or quotes, preventing generated .csv files from corrupting.
-   UI Defense: Revalidate and repaint operations run alongside input sanitization (try-catch for NumberFormatException) to prevent UI render artifacts and runtime crashes.
+Employee (mechanic.Employee): Models workshop staff attributes:
 
-🚀 How to Run the Application
-Prerequisites
-   Java Development Kit (JDK): Version 11 or higher
-   IDE: IntelliJ IDEA, Eclipse, or NetBeans
+        **name (String)       
+        **work (String)        
+        **department (String)        
+        **salary (double)
 
-Option 1: Running inside IntelliJ IDEA (Recommended)
-   Open the project folder in IntelliJ IDEA.
-   Navigate to src/shop/shoppingtracker/ExpenseTrackerPro.java.
-   Right-click ExpenseTrackerPro.java and select Run 'ExpenseTrackerPro.main()' (or click the green Play button next to the main method).
+Features
+📁 CSV File Parser (mechanic.workshop.partanalyser.csvhandler.CsvFileParser)
+Handles file I/O and converts CSV input lines into domain models:
 
-Option 2: Running via Terminal / Command Line
-   Clone the Repository:
+        **NIO File Reading: Uses Files.readAllLines for efficient parsing.       
+        **Validation & Cleaning: Automatically ignores CSV headers and drops lines that do not match expected column counts (5 columns for Part, 4 columns for Employee).        
+        **Ingestion: Trims whitespace and handles parsing operations gracefully.
 
-Bash
-   git clone [https://github.com/mumberestanny-eng/Refactored-Calculator.git](https://github.com/mumberestanny-eng/Refactored-Calculator.git)
-   cd Refactored-Calculator
-Compile the Source Files:
+🛠️ Workshop Part Analyser (mechanic.workshop.partanalyser.WorkShopPartAnalyser)
+Provides detailed analytics and reporting for workshop inventory:
 
-Bash
-   javac -d bin src/shop/shoppingtracker/*.java src/shop/shoppingtracker/trackerstyling/*.java src/shop/shoppingtracker/trackerstyling/ExportCSV/*.java
-   Launch the GUI:
+        **Filtering & Ordering: Query parts by minimum price floor or custom stock thresholds.
+        **Reorder & Critical Stock Tracking: Identifies critical items (stock $\le 1$) and generates low-stock warnings (stock $< 3$).
+        **Group Aggregation: Computes category counts, supplier groupings, and category-level average prices.
+        **Financial Statistics: Summarizes full inventory monetary value ($Price \times Stock$) and outputs comprehensive metrics (DoubleSummaryStatistics).
 
-Bash
-    java -cp bin shop.shoppingtracker.ExpenseTrackerPro
-    
-📸 Usage Workflow
+👥 Workshop Employee Analyser (mechanic.workshop.WorkShopEmployeeAnalyser)
+Delivers administration and payroll metrics:
 
-    Enter the Item Name and Item Price in the Input Console.
-    Click Add Item to cart to append the expense to your active list.
-    Click Total to compute the total expenditure in real time.
-    Click Export to CSV to select a file path and save your record!
+        **Staff Directory: Aggregates distinct employees, departments, and specific roles.
+        **Salary Analytics: Groups average salaries by department and role; highlights top earners and low-income thresholds.
+        **Hierarchical Sorting: Sorts employee records sequentially by Name $\rightarrow$ Salary (Descending) $\rightarrow$ Department $\rightarrow$ Role.
+        **Payroll Overview: Generates summary headcount, lowest, highest, and average compensation statistics.
 
-🛠️ Tech Stack
+Exact Directory Structure
 
-    Language: Java 11+
-    GUI Framework: Java Swing / AWT
-    Version Control: Git / GitHub
+        src/
+        ├── mechanic/
+        │   ├── Employee.java                         # Employee Entity Model
+        │   ├── Part.java                             # Part Entity Model
+        │   └── workshop/
+        │       ├── PartAnalyser.java                 # Main Executable: Inventory Analysis CLI
+        │       ├── WorkShopEmployeeAnalyser.java    # Employee Analytics Processor
+        │       └── partanalyser/
+        │           ├── EmployeeAnalyser.java         # Main Executable: Workforce Analysis CLI
+        │           ├── WorkShopPartAnalyser.java    # Inventory Analytics Processor
+        │           └── csvhandler/
+        │               └── CsvFileParser.java      # CSV Ingestion & Entity Transformer
+        ├── com/                                      # Application package
+        ├── GUIprogramming/                           # UI components
+        ├── shop/                                     # Shop module
+        │   └── Main.java                             # Application entry point
+        ├── employees_100.csv                         # Workforce Dataset
+        ├── Expenses.csv                              # Expenses Dataset
+        └── .gitignore                                # Git ignore file
+
+Requirements
+
+        ->Java Development Kit (JDK): 17 or higher (utilizes Stream.toList(), 
+        ->Files.readAllLines, and enhanced Java Streams API features).
+
+Expected Input CSV Specifications
+Parts CSV File (garage_parts_100.csv)
+Structure: Name, Category, Price, Stock, Supplier
+
+        Name, Category, Price, Stock, Supplier
+        Brake Pad, Brakes, 45.50, 12, Bosch
+        Oil Filter, Engine, 12.00, 2, Fram
+        Spark Plug, Engine, 8.75, 0, NGK
+
+Employees CSV File (employees_100.csv)
+Structure: Name, Work, Department, Salary
+
+        Name, Work, Department, Salary
+        John Doe, Mechanic, Maintenance, 45000.00
+        Jane Smith, Manager, Logistics, 65000.00
+
+How to Run
+1. Compile the Project
+Open a terminal in the root directory of the project containing the src/ folder and run:
+
+        javac -d bin $(find src -name "*.java")
+
+2. Execute Inventory Analysis (PartAnalyser)
+Executes the main entry point processing garage_parts_100.csv:
+
+        java -cp bin mechanic.workshop.PartAnalyser
+
+3. Execute Workforce & Payroll Analysis (EmployeeAnalyser)
+Executes the main entry point processing employees_100.csv:
+
+        java -cp bin mechanic.workshop.partanalyser.EmployeeAnalyser
+
