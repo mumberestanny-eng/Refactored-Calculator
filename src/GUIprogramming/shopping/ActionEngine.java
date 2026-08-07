@@ -5,27 +5,23 @@ import java.util.List;
 
 public class ActionEngine {
 
-     List<Action> history = new ArrayList<>();
-     List<Action> undoStack = new ArrayList<>();
+     private final List<Action> history = new ArrayList<>();
+     private final List<Action> undoStack = new ArrayList<>();
 
      public void createAction(String description){
-
          if (!description.isEmpty()){
              Action a = new Action(description.trim());
              history.add(a);
+             undoStack.clear();
          }
      }
 
      public List<String> getHistory(){
          List<String> actions = new ArrayList<>();
          String action = "";
-         int index = 0;
-
-         for (int i = history.size() - 1; i >= 0; i--) {
-             Action a = history.get(i);
-             action = (index + 1)+". " +a.getDescription();
+         for (Action activeAction : history) {
+             action = activeAction.getDescription();
              actions.add(action);
-             index++;
          }
          return actions;
      }
@@ -33,10 +29,8 @@ public class ActionEngine {
      public List<String> getUndoStack(){
          List<String> undoActions = new ArrayList<>();
          String action = "";
-
-         for (int i = undoStack.size() - 1; i >= 0; i--) {
-             Action a = undoStack.get(i);
-             action = "Dropped: "+a.getDescription();
+         for (Action undoAction : undoStack) {
+             action =undoAction.getDescription();
              undoActions.add(action);
          }
          return undoActions;

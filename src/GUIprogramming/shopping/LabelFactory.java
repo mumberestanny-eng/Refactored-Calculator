@@ -21,10 +21,22 @@ public class LabelFactory {
     }
 
     public List<JLabel> createActiveLabelCollection(List<String> source){
-
-        List<JLabel> labelCollection = new  ArrayList<>();
+        int index = 0;
+        List<JLabel> labelCollection = new ArrayList<>();
         for(String s : source){
-            labelCollection.add(createNewLabel(s));
+            String text = (index + 1) + ". "+ s;
+            labelCollection.add(createNewLabel(text));
+            index++;
+        }
+        return labelCollection;
+    }
+
+    public List<JLabel> createDroppedLabelCollection(List<String> source){
+
+        List<JLabel> labelCollection = new ArrayList<>();
+        for(String s : source){
+            String text = "Dropped: "+ s;
+            labelCollection.add(createNewLabel(text));
         }
         return labelCollection;
     }
