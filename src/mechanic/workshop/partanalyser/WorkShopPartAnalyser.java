@@ -143,10 +143,10 @@ public class WorkShopPartAnalyser {
 
         System.out.println("___Highest Price By Category__");
         highestPriceByCat.forEach((key, optionalPart) ->
-                optionalPart.ifPresent( op -> System.out.printf("Category: %s, Highest Price: %s",key, op.getPrice())));
+                optionalPart.ifPresent( op -> System.out.printf("Category: %s, Highest Price: %s%n",key, op.getPrice())));
     }
 
-    public List<Part> sortPartByNameCatPrice(List<Part> parts){
+    public List<Part> sortPartByCatAndPrice(List<Part> parts){
         if(parts.isEmpty()){
             System.out.println("Empty list");
             return List.of();
@@ -154,7 +154,7 @@ public class WorkShopPartAnalyser {
         return parts
                 .stream()
                 .sorted(Comparator.comparing(Part::getCategory)
-                        .thenComparingDouble(Part::getPrice).reversed()).toList();
+                        .thenComparing(Comparator.comparingDouble(Part::getPrice).reversed())).toList();
 
     }
 

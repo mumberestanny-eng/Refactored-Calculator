@@ -120,7 +120,7 @@ How to Run
 1. Compile the Project
 Open a terminal in the root directory of the project containing the src/ folder and run:
 
-        javac -d bin $(find src -name "*.java")
+        javac -d bin (find src -name "*.java")
 
 2. Execute Inventory Analysis (PartAnalyser)
 Executes the main entry point processing garage_parts_100.csv:

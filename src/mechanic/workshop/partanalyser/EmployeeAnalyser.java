@@ -35,8 +35,8 @@ public class EmployeeAnalyser {
         System.out.println("\n____Get the average salary by role____\n");
         employeeAnalyser.averageSalaryByWork(employeesAsEmployee);
 
-        System.out.println("\n____Get all the employees earning under $1500.00____\n");
-        employeeAnalyser.lowestSalary(employeesAsEmployee, 1500.00).forEach(System.out::println);
+        System.out.println("\n____Get all the employees earning under $85000.00____\n");
+        employeeAnalyser.lowestSalary(employeesAsEmployee, 85000.00).forEach(System.out::println);
 
         System.out.println("\n____The statistics of our workshop employee____\n");
         employeeAnalyser.salaryStatistics(employeesAsEmployee);

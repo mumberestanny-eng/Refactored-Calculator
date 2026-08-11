@@ -24,15 +24,15 @@ public class WorkShopEmployeeAnalyser {
             System.out.println("Empty List");
             return;
         }
-        Map<String, String> workByEmployeeName = employeesList.stream()
-                .distinct()
-                .collect(Collectors.toMap(
-                        Employee::getName,
+
+        Map<String, List<String>> employeesByWork = employeesList.stream()
+                .collect(Collectors.groupingBy(
                         Employee::getWork,
-                        (existingWork, newWork) -> existingWork // Merge function handles duplicate names safely
+                        Collectors.mapping(Employee::getName, Collectors.toList())
                 ));
-        workByEmployeeName.forEach((name, workType) ->
-                System.out.printf("%s : %s%n", name, workType)
+
+        employeesByWork.forEach((workType, names) ->
+                System.out.printf("%s : %s%n", workType, names)
         );
     }
 
@@ -112,7 +112,7 @@ public class WorkShopEmployeeAnalyser {
 
         highByDep.forEach((department, employeeOptional) ->
               employeeOptional.ifPresent(emp ->
-                      System.out.printf("Department Name: %s, Highest Salary: %.2f", department, emp.getSalary())));
+                      System.out.printf("Department Name: %s, Highest Salary: %.2f%n", department, emp.getSalary())));
 
     }
 

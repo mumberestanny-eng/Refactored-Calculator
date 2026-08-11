@@ -51,7 +51,7 @@ public class PartAnalyser {
         partAnalyser.highPriceByCategory(partsAsPart);
 
         System.out.println("\n____List of all part sorted by name, price, category____\n");
-        partAnalyser.sortPartByNameCatPrice(partsAsPart).forEach(System.out::println);
+        partAnalyser.sortPartByCatAndPrice(partsAsPart).forEach(System.out::println);
 
         System.out.println("\n____The statistics of our workshop____\n");
         partAnalyser.priceStatistics(partsAsPart);
