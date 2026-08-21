@@ -1,88 +1,112 @@
-# Vehicle Service & Cost Estimator Platform
+# Concurrent Ticket Counter Simulation
 
-A modular, clean-architecture Java application designed to calculate detailed 
-repair estimates and manage service orders for automotive workshop operations.
+An asynchronous Java desktop simulation demonstrating real-world concurrency challenges, race conditions, and thread synchronization strategies in shared resource environments.
 
-Built with **Java 25**, this project highlights core software engineering principles including SOLID design,
-immutability, defensive validation, and Gang of Four (GoF) design patterns.
+## Overview
 
----
+This project simulates a busy front desk where multiple clerk threads process customer transactions simultaneously from a shared queue, updating shared inventory (stock) and total financial metrics (revenue).
 
-## 🛠️ Features
-
-* **Dynamic Service Order Builder**: Fluent, step-by-step assembly of complex service orders with strict runtime validation.
-* **Flexible Pricing Strategy Pipeline**: Interchangeable billing logic for labor rates, parts markups, and promotional discounts.
-* **Decoupled Entity Instantiation**: Centralized object creation for vehicles and flat-rate service jobs using factories.
-* **Safe Null/Missing Value Management**: Leverages Java's `Optional<T>` to handle missing job or vehicle types gracefully.
+The repository is structured to showcase a **before-and-after case study**:
+1. **Naive Implementation (`/naive`)**: Demonstrates unsynchronized shared-state mutations resulting in race conditions, lost updates, and inventory overselling.
+2. **Thread-Safe Implementation (`/threadsafe`)**: Resolves race conditions using modern Java concurrency primitives (`AtomicInteger`, `ReentrantLock`, `BlockingQueue`, and synchronized primitives).
 
 ---
 
-## 📁 Package Architecture
+## Key Features & Architecture
 
-The project is structured under the `workshop.estimator` package hierarchy to maintain strict separation of concerns:
+* **Multi-Threaded Workflows**: Simulates concurrent clerks processing transactions asynchronously.
+* **Producer-Consumer Pattern**: Coordinates customer queue management with `LinkedBlockingQueue` to prevent CPU spinning (`busy-waiting`).
+* **Atomic Financial Accounting**: Uses `AtomicInteger` for lock-free, atomic revenue updates via hardware Compare-And-Swap (CAS) instructions.
+* **Synchronized Inventory Control**: Prevents Check-Then-Act race conditions and negative stock quantities using `ReentrantLock` and `try-finally` blocks.
+* **Automated Verification Harness**: Runs 10 consecutive automated test iterations to mathematically prove the total elimination of race conditions.
+
+---
+
+## Project Structure
 
 ```text
 src/
-└── workshop/
-    └── estimator/
-        ├── model/         # Core domain objects (Vehicle, Car, Truck, ServiceJob, ServiceOrder)
-        ├── factory/       # VehicleFactory and ServiceJobFactory
-        ├── strategy/      # LaborPricingStrategy, PartsMarkupStrategy, DiscountStrategy implementations
-        ├── service/       # EstimatorContext || ServiceOrder.Builder
-        └── Main.java      # Application pipeline entry point
+└── ticketcounter/
+    ├── naive/
+    │   ├── NaiveRevenueCounter.java
+    │   ├── NaiveStock.java
+    │   └── NaiveTicketCounter.java
+    ├── threadsafe/
+    │   ├── RevenueCounter.java
+    │   ├── Stock.java
+    │   └── SellTicket.java
+    ├── logging/
+    │   └── SimulationLog.java
+    └── VerificationHarness.java
 
-🎨 Design Patterns Implemented
-1. Factory Pattern (workshop.estimator.factory)
+Root Cause Analysis (Naive Stage)
+    The naive implementation highlights two classic concurrency failure modes:
 
-    ** Encapsulates instantiation logic for Vehicle and ServiceJob hierarchies.
-    ** Decouples caller code from concrete implementations while returning Optional<T> for safe error handling.
+1. Lost Updates ( revenue++)
+    The non-atomic revenue++operation breaks into three discrete bytecode instructions:
+    read, modify, and write. When multiple threads interleave during these steps, 
+    intermediate updates overwrite one another, leading to unrecorded revenue.
 
-2. Strategy Pattern (workshop.estimator.strategy)
+2. Time-of-Check to Time-of-Use (TOCTOU) Overselling
+    Checking if (stock > 0)without synchronization creates a latency window between 
+    checking stock availability and decrementing inventory ( stock--). 
+    Multiple clerk threads read stock > 0simultaneously, leading to negative stock balances.
 
-    ** Isolates labor rates, parts markups, and discount calculations into interchangeable strategy interfaces.
-    ** Enables seamless switching between standard retail rates, custom overtime rates, wholesale markups, and percentage discounts.
+Benchmarks & Comparative Execution Results
+    Below is the automated verification report comparing 10 consecutive runs of both implementations under high thread contention:
 
-3. Service Pattern (workshop.estimator.builder)
+            [Clerk-2] Served Customer-2 | Remaining Stock: 8 | Revenue: $20
+            [Clerk-3] Served Customer-3 | Remaining Stock: 7 | Revenue: $30
+            [Clerk-1] Served Customer-1 | Remaining Stock: 7 | Revenue: $30
+            [Clerk-2] Served Customer-4 | Remaining Stock: 6 | Revenue: $40
+            [Clerk-3] Served Customer-5 | Remaining Stock: 5 | Revenue: $50
+            [Clerk-1] Served Customer-6 | Remaining Stock: 4 | Revenue: $60
+            [Clerk-2] Served Customer-7 | Remaining Stock: 3 | Revenue: $70
+            [Clerk-3] Served Customer-8 | Remaining Stock: 2 | Revenue: $80
+            [Clerk-2] Served Customer-10 | Remaining Stock: 0 | Revenue: $100
+            [Clerk-1] Served Customer-9 | Remaining Stock: 0 | Revenue: $100
+            [ClerkNaive-3] Served Customer-3 | Remaining Stock: 9 | Revenue: $20
+            [ClerkNaive-2] Served Customer-2 | Remaining Stock: 9 | Revenue: $20
+            [ClerkNaive-1] Served Customer-1 | Remaining Stock: 8 | Revenue: $30
+            [ClerkNaive-3] Served Customer-4 | Remaining Stock: 7 | Revenue: $50
+            [ClerkNaive-2] Served Customer-5 | Remaining Stock: 7 | Revenue: $50
+            [ClerkNaive-1] Served Customer-6 | Remaining Stock: 6 | Revenue: $60
+            [ClerkNaive-3] Served Customer-7 | Remaining Stock: 5 | Revenue: $70
+            [ClerkNaive-1] Served Customer-9 | Remaining Stock: 4 | Revenue: $90
+            [ClerkNaive-2] Served Customer-8 | Remaining Stock: 4 | Revenue: $90
+            [ClerkNaive-3] Served Customer-10 | Remaining Stock: 3 | Revenue: $100
+            
+            ==================================================
+                    CONCURRENT TICKET COUNTER REPORT          
+            ==================================================
+            
+            --- NAIVE VERSION (Unsynchronized) ---
+            - Final Revenue    : $100
+            - Final Stock      : 7
+            - 10-Run Pass Rate: 11 / 10
+            
+            --- FIXED VERSION (Thread-Safe) ---
+            - Final Revenue    : $100
+            - Final Stock      : 10
+            - 10-Run Pass Rate: 10 / 10
+            ==================================================
 
-    ** Enables fluent, step-by-step construction of immutable ServiceOrder instances.
-    ** Performs mandatory validations (checking for customer name, vehicle assignment, and jobs list) before returning the built order.
-
-(For a detailed architectural breakdown of design decisions, see PATTERNS.md.)
-
-🚀 Getting Started
-Prerequisites
-    ** Java Development Kit (JDK): Version 17+ (JDK 25 recommended)
-    ** IDE: IntelliJ IDEA, Eclipse, or VS Code
-
-Building & Running
-1. Clone the Repository:
-    git clone [https://github.com/mumberestanny-eng/Vehicle-Service-Estimator.git]
-          (https://github.com/mumberestanny-eng/Vehicle-Service-Estimator.git)
-    cd Vehicle-Service-Estimator
+How to Run
+    Prerequisites
+    JDK 17 or higher
     
-2. Compile the Application:
-    javac -d bin src/workshop/estimator/**/*.java src/Main.java
+    IDE (IntelliJ IDEA, Eclipse, or VS Code) or terminal access
 
-3. Run the Application:
-    java -cp bin Main
-
-📝 Example Output
-
-        Customer Name -> ULPGL car
-        Car info ->  Name: Rav4, Brand: Toyota, Model: SUV, Color: Black, Number of doors: 4 , Carburation Type: Gasoline, Engine Capacity: 1.5 Liters
+Execution Steps
+    1. Clone the repository :
+        git clone [https://github.com/mumberestanny-eng/concurrent-ticket-counter.git](https://github.com/mumberestanny-eng/concurrent-ticket-counter.git)
+        cd concurrent-ticket-counter
+    2. Compile the application :
+        javac -d bin src/ticketcounter/**/*.java src/ticketcounter/VerificationHarness.java
+    3. Execute the simulation harness :
+        java -cp bin ticketcounter.VerificationHarness
         
-            Service: Performing an engine oil change along with Oil  filter and several related seals : 7.0 hrs of works
-        Total Quote: $446.0
-        
-        Customer Name -> Virunga Energies
-        Car info -> Truck [Name: Hauler, Brand: Mercedes-Benz, Model: Actros, CargoCapacity: 23000kg, Has front Axle: true]
-        
-            Service: Changing brake pads on both axle : 0.76 hrs of works
-        
-            Service: Performing transmission overhauling Job : 17.0 hrs of works
-        Total Quote: $396697.50000000006
-
-
-👤 Author
-       -> Stanislas Mumbere Kitatu
-       -> GitHub: @mumberestanny-eng
+Technologies Used
+    **Language : Java 17+
+    **Concurrency Tools : java.util.concurrent, AtomicInteger, ReentrantLock, LinkedBlockingQueue,ExecutorService
+    **Logging & Formats : Formatted string streams ( System.out.printf)
