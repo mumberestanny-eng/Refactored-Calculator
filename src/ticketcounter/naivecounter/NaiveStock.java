@@ -1,12 +1,15 @@
 package ticketcounter.naivecounter;
 
-public class NaiveStock {
+import ticketcounter.interfaces.Sellable;
+
+public class NaiveStock implements Sellable {
 
     private int stock;
 
     public NaiveStock(int stock) {
         this.stock = stock;
     }
+    @Override
     public boolean sellTicket(){
         if (stock > 0){
             try {
@@ -19,6 +22,7 @@ public class NaiveStock {
         }
         return false;
     }
+    @Override
     public int getStock() {
         return stock;
     }
