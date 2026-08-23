@@ -4,6 +4,7 @@ import mechanic.Part;
 import mechanic.workshop.partanalyser.WorkShopPartAnalyser;
 import mechanic.workshop.partanalyser.csvhandler.CsvFileParser;
 
+import java.nio.file.Path;
 import java.util.*;
 
 public class PartAnalyser {
@@ -14,7 +15,7 @@ public class PartAnalyser {
         WorkShopPartAnalyser partAnalyser = new WorkShopPartAnalyser();
 
         String path = "garage_parts_100.csv";
-        List<String> partsAsList = fileParser.csvParser(path);
+        List<String> partsAsList = fileParser.csvParser(Path.of(path));
         List<Part> partsAsPart = fileParser.partTransformer(partsAsList);
 
         System.out.println("\n____List of all the WorkShop Part____");
@@ -33,28 +34,34 @@ public class PartAnalyser {
         System.out.println("The most expensive part is: "+partAnalyser.mostExpensivePart(partsAsPart));
 
         System.out.println("\n____Group all the parts supplier____\n");
-        partAnalyser.groupBySupplier(partsAsPart).forEach(System.out::println);
+        partAnalyser.getDistinctSuppliers(partsAsPart).forEach(System.out::println);
 
         System.out.println("\n____Group all the parts by their category____\n");
-        partAnalyser.getPartsByCategory(partsAsPart);
+        partAnalyser.getPartsByCategory(partsAsPart).forEach((category, count) -> System.out.println(category + " : " + count));;
 
         System.out.println("\n____Group average price by supplier____\n");
-        partAnalyser.getAveragePriceBySupplier(partsAsPart);
+        partAnalyser.getAveragePriceBySupplier(partsAsPart).forEach((key, value) -> System.out.printf("%s : $%.2f\n", key, value));;
 
         System.out.println("\n____Get parts with low stock capacity____\n");
         System.out.println(partAnalyser.lowStockPart(partsAsPart));
 
         System.out.println("\n____Parts we would need to reorder____\n");
-        partAnalyser.criticalPartsStock(partsAsPart);
+        partAnalyser.criticalPartsStock(partsAsPart).forEach(System.out::println);
 
-        System.out.println("\nGet the highest price parts in each category____");
-        partAnalyser.highPriceByCategory(partsAsPart);
+        System.out.println("\n____Get the highest price parts in each category____");
+        partAnalyser.highPriceByCategory(partsAsPart).forEach((key, optionalPart) ->
+                optionalPart.ifPresent( op -> System.out.printf("Category: %s, Highest Price: %s%n",key, op.price())));;
 
         System.out.println("\n____List of all part sorted by name, price, category____\n");
         partAnalyser.sortPartByCatAndPrice(partsAsPart).forEach(System.out::println);
 
         System.out.println("\n____The statistics of our workshop____\n");
-        partAnalyser.priceStatistics(partsAsPart);
+        DoubleSummaryStatistics priceStats = partAnalyser.priceStatistics(partsAsPart);
+        System.out.printf("Total inventory tracked: %d parts\n", priceStats.getCount());
+        System.out.printf("Highest Part's Price: $%.2f\n", priceStats.getMax());
+        System.out.printf("Lowest Part's Price: $%.2f\n", priceStats.getMin());
+        System.out.printf("Average WorkShop Price: $%.2f\n", priceStats.getAverage());
+        System.out.printf("Total Inventory Value: $%.2f\n", priceStats.getSum());
 
 
     }

@@ -12,7 +12,7 @@ public class WorkShopPartAnalyser {
             return List.of();
         }
         return parts.stream()
-                .map(Part::getName)
+                .map(Part::name)
                 .sorted()
                 .toList();
     }
@@ -24,7 +24,7 @@ public class WorkShopPartAnalyser {
         }
         return parts
                 .stream()
-                .filter(pr -> pr.getPrice() >= threshold)
+                .filter(pr -> pr.price() >= threshold)
                 .toList();
     }
 
@@ -35,8 +35,8 @@ public class WorkShopPartAnalyser {
         }
         return parts
                 .stream()
-                .filter(pr -> pr.getStock() < threshold)
-                .sorted(Comparator.comparingInt(Part::getStock))
+                .filter(pr -> pr.stock() < threshold)
+                .sorted(Comparator.comparingInt(Part::stock))
                 .toList();
     }
 
@@ -47,7 +47,7 @@ public class WorkShopPartAnalyser {
         }
         return parts
                 .stream()
-                .mapToDouble(pr -> pr.getPrice() * pr.getStock())
+                .mapToDouble(pr -> pr.price() * pr.stock())
                 .sum();
     }
 
@@ -59,51 +59,49 @@ public class WorkShopPartAnalyser {
 
         return parts
                 .stream()
-                .mapToInt(Part::getStock)
+                .mapToInt(Part::stock)
                 .sum();
     }
 
     public Part mostExpensivePart(List<Part> parts){
         return parts
                 .stream()
-                .max(Comparator.comparingDouble(Part::getPrice))
+                .max(Comparator.comparingDouble(Part::price))
                 .orElseThrow(() -> new IllegalArgumentException("Not parts found."));
     }
 
-    public List<String> groupBySupplier(List<Part> parts){
+    public List<String> getDistinctSuppliers(List<Part> parts){
         if(parts.isEmpty()){
             System.out.println("Empty list");
             return List.of();
         }
         return parts
                 .stream()
-                .map(Part::getSupplier)
+                .map(Part::supplier)
                 .distinct()
                 .sorted()
                 .toList();
     }
 
-    public void getPartsByCategory(List<Part> parts){
+    public Map<String, Long> getPartsByCategory(List<Part> parts){
         if(parts.isEmpty()){
             System.out.println("Empty list");
+            return Map.of();
         }
-        Map<String, Long> groupByCat = parts
+         return parts
                 .stream()
-                .collect(Collectors.groupingBy(Part::getCategory, Collectors.counting()));
-
-        groupByCat.forEach((category, count) -> System.out.println(category + " : " + count));
+                .collect(Collectors.groupingBy(Part::category, Collectors.counting()));
     }
 
-    public void getAveragePriceBySupplier(List<Part> parts){
+    public Map<String, Double> getAveragePriceBySupplier(List<Part> parts){
         if(parts.isEmpty()){
             System.out.println("Empty list");
+            return Map.of();
         }
 
-        Map<String, Double> avgSup = parts
+        return parts
                 .stream()
-                .collect(Collectors.groupingBy(Part::getSupplier, Collectors.averagingDouble(Part::getPrice)));
-
-        avgSup.forEach((key, value) -> System.out.println(key + " : " + value));
+                .collect(Collectors.groupingBy(Part::supplier, Collectors.averagingDouble(Part::price)));
     }
 
     public String lowStockPart(List<Part> parts){
@@ -113,37 +111,31 @@ public class WorkShopPartAnalyser {
         }
         return parts
                 .stream()
-                .filter(pr -> pr.getStock() < 3)
-                .map(Part::getName)
+                .filter(pr -> pr.stock() < 3)
+                .map(Part::name)
                 .sorted()
                 .collect(Collectors.joining(","));
     }
 
-    public void criticalPartsStock (List<Part> parts){
+    public List<Part> criticalPartsStock (List<Part> parts){
         if(parts.isEmpty()){
             System.out.println("Empty list");
-            return;
+            return  List.of();
         }
-        Map<Boolean, List<Part>> criticalStock = parts
+        return parts
                 .stream()
-                .collect(Collectors.partitioningBy(part -> part.getStock() <= 1));
-
-        System.out.println("___Critical Stock Parts__");
-        criticalStock.forEach((isLow, part) -> System.out.println("Is stock low?: "+isLow+" Part: "+part));
+                .filter(p -> p.stock() <= 1)
+                .toList();
     }
 
-    public void highPriceByCategory(List<Part> parts){
+    public Map<String, Optional<Part>> highPriceByCategory(List<Part> parts){
         if(parts.isEmpty()){
             System.out.println("Empty list");
-            return;
+            return Map.of();
         }
-        Map<String, Optional<Part>> highestPriceByCat = parts
+        return parts
                 .stream()
-                .collect(Collectors.groupingBy(Part::getCategory, Collectors.maxBy(Comparator.comparingDouble(Part::getPrice))));
-
-        System.out.println("___Highest Price By Category__");
-        highestPriceByCat.forEach((key, optionalPart) ->
-                optionalPart.ifPresent( op -> System.out.printf("Category: %s, Highest Price: %s%n",key, op.getPrice())));
+                .collect(Collectors.groupingBy(Part::category, Collectors.maxBy(Comparator.comparingDouble(Part::price))));
     }
 
     public List<Part> sortPartByCatAndPrice(List<Part> parts){
@@ -153,27 +145,33 @@ public class WorkShopPartAnalyser {
         }
         return parts
                 .stream()
-                .sorted(Comparator.comparing(Part::getCategory)
-                        .thenComparing(Comparator.comparingDouble(Part::getPrice).reversed())).toList();
+                .sorted(Comparator.comparing(Part::category)
+                        .thenComparing(Comparator.comparingDouble(Part::price).reversed())).toList();
 
     }
 
-    public void priceStatistics(List<Part> parts){
+    public DoubleSummaryStatistics priceStatistics(List<Part> parts){
         if(parts.isEmpty()){
             System.out.println("Empty list");
-            return;
         }
 
-        DoubleSummaryStatistics priceStats = parts
+         return parts
                 .stream()
-                .collect(Collectors.summarizingDouble(Part::getPrice));
-
-        System.out.printf("Total inventory tracked: %d parts\n", priceStats.getCount());
-        System.out.printf("Highest Part's Price: $%.2f\n", priceStats.getMax());
-        System.out.printf("Lowest Part's Price: $%.2f\n", priceStats.getMin());
-        System.out.printf("Average WorkShop Price: $%.2f\n", priceStats.getAverage());
-        System.out.printf("Total Inventory Value: $%.2f\n", priceStats.getSum());
-
+                .collect(Collectors.summarizingDouble(Part::price));
     }
 
 }
+
+/*
+
+
+avgSup
+
+System.out.println("___Critical Stock Parts__");
+        criticalStock.forEach((isLow, part) -> System.out.println("Is stock low?: "+isLow+" Part: "+part));
+
+System.out.println("___Highest Price By Category__");
+        highestPriceByCat
+
+
+ */

@@ -14,26 +14,24 @@ public class WorkShopEmployeeAnalyser {
         }
         return employeesList
                 .stream()
-                .map(Employee::getName)
+                .map(Employee::name)
                 .sorted()
                 .toList();
     }
 
-    public void groupByWork(List<Employee> employeesList) {
+    public Map<String, List<String>> groupByWork(List<Employee> employeesList) {
         if (employeesList == null || employeesList.isEmpty()) {
             System.out.println("Empty List");
-            return;
+            return Map.of();
         }
 
-        Map<String, List<String>> employeesByWork = employeesList.stream()
+         return employeesList.stream()
                 .collect(Collectors.groupingBy(
-                        Employee::getWork,
-                        Collectors.mapping(Employee::getName, Collectors.toList())
+                        Employee::work,
+                        Collectors.mapping(Employee::name, Collectors.toList())
                 ));
 
-        employeesByWork.forEach((workType, names) ->
-                System.out.printf("%s : %s%n", workType, names)
-        );
+
     }
 
     public List<String> getAllDepartments(List<Employee> employeesList){
@@ -44,11 +42,12 @@ public class WorkShopEmployeeAnalyser {
 
         return employeesList
                 .stream()
-                .map(Employee::getDepartment)
+                .map(Employee::department)
                 .distinct()
                 .sorted()
                 .toList();
     }
+
     public List<String> getAllWorks(List<Employee> employeesList){
         if (employeesList.isEmpty()){
             System.out.println("Empty List");
@@ -56,33 +55,32 @@ public class WorkShopEmployeeAnalyser {
         }
         return employeesList
                 .stream()
-                .map(Employee::getWork)
+                .map(Employee::work)
                 .distinct()
                 .sorted()
                 .toList();
     }
 
-    public void averageSalaryByDepartment(List<Employee> employeesList){
+    public Map<String, Double> averageSalaryByDepartment(List<Employee> employeesList){
         if (employeesList.isEmpty()){
             System.out.println("Empty List");
-            return;
+            return Map.of();
         }
-        Map<String, Double> avgDep = employeesList
+         return  employeesList
                 .stream()
-                .collect(Collectors.groupingBy(Employee::getDepartment, Collectors.averagingDouble(Employee::getSalary)));
+                .collect(Collectors.groupingBy(Employee::department, Collectors.averagingDouble(Employee::salary)));
 
-        avgDep.forEach((department,salary) -> System.out.printf("Department Name: %s, Average Salary: $%.2f\n", department, salary));
+
     }
-    public void averageSalaryByWork(List<Employee> employeesList){
+
+    public Map<String, Double> averageSalaryByWork(List<Employee> employeesList){
         if (employeesList.isEmpty()){
             System.out.println("Empty List");
-            return;
+            return Map.of();
         }
-        Map<String, Double> avgWork = employeesList
+        return employeesList
                 .stream()
-                .collect(Collectors.groupingBy(Employee::getWork, Collectors.averagingDouble(Employee::getSalary)));
-
-        avgWork.forEach((work, salary) -> System.out.printf("Work Name: %s, Salary: $%.2f\n", work, salary));
+                .collect(Collectors.groupingBy(Employee::work, Collectors.averagingDouble(Employee::salary)));
     }
 
     public List<Employee> lowestSalary(List<Employee> employeesList, double threshold){
@@ -92,47 +90,37 @@ public class WorkShopEmployeeAnalyser {
         }
         return employeesList
                 .stream()
-                .filter(emp -> emp.getSalary() < threshold)
-                .distinct()
-                .sorted(Comparator.comparingDouble(Employee::getSalary)
-                        .thenComparing(Employee::getName))
+                .filter(emp -> emp.salary() < threshold)
+                .sorted(Comparator.comparingDouble(Employee::salary)
+                        .thenComparing(Employee::name))
                 .toList();
     }
 
-    public void highestSalaryByDepartment(List<Employee> employeesList){
+    public Map<String, Optional<Employee>> highestSalaryByDepartment(List<Employee> employeesList){
         if (employeesList.isEmpty()){
             System.out.println("Empty List");
-            return;
+            return Map.of();
         }
-        Map<String, Optional<Employee>> highByDep = employeesList
+
+        return employeesList
                 .stream()
                 .collect(Collectors.groupingBy(
-                        Employee::getDepartment, Collectors.maxBy(Comparator.comparingDouble(Employee::getSalary))
+                        Employee::department, Collectors.maxBy(Comparator.comparingDouble(Employee::salary))
                 ));
-
-        highByDep.forEach((department, employeeOptional) ->
-              employeeOptional.ifPresent(emp ->
-                      System.out.printf("Department Name: %s, Highest Salary: %.2f%n", department, emp.getSalary())));
 
     }
 
-    public void highestSalaryByWork(List<Employee> employeesList) {
+    public Map<String, Optional<Employee>> highestSalaryByWork(List<Employee> employeesList) {
         if (employeesList.isEmpty()) {
             System.out.println("Empty List");
-            return;
+            return Map.of();
         }
 
-        Map<String, Optional<Employee>> higByWork = employeesList.stream()
+        return employeesList.stream()
                 .collect(Collectors.groupingBy(
-                        Employee::getWork,
-                        Collectors.maxBy(Comparator.comparingDouble(Employee::getSalary))
+                        Employee::work,
+                        Collectors.maxBy(Comparator.comparingDouble(Employee::salary))
                 ));
-
-        higByWork.forEach((work, empOptional) ->
-                empOptional.ifPresent(emp ->
-                        System.out.printf("Work type: %s, Highest Salary: %.2f%n", work, emp.getSalary())
-                )
-        );
     }
 
     public List<Employee> sortedByNameSalary(List<Employee> employeesList){
@@ -143,10 +131,11 @@ public class WorkShopEmployeeAnalyser {
         return employeesList
                 .stream()
                 .sorted(Comparator
-                        .comparing(Employee::getName)
-                        .thenComparing(Comparator.comparingDouble(Employee::getSalary).reversed())
-                        .thenComparing(Employee::getDepartment).thenComparing(Employee::getWork)).toList();
+                        .comparing(Employee::name)
+                        .thenComparing(Comparator.comparingDouble(Employee::salary).reversed())
+                        .thenComparing(Employee::department).thenComparing(Employee::work)).toList();
     }
+
     public Optional<Employee> highestSalaryEmployee(List<Employee> employeesList){
         if (employeesList.isEmpty()){
             System.out.println("Empty List");
@@ -155,7 +144,7 @@ public class WorkShopEmployeeAnalyser {
 
         return employeesList
                 .stream()
-                .max(Comparator.comparingDouble(Employee::getSalary));
+                .max(Comparator.comparingDouble(Employee::salary));
     }
 
     public Optional<Employee> lowestSalaryEmployee(List<Employee> employeesList){
@@ -165,21 +154,16 @@ public class WorkShopEmployeeAnalyser {
         }
         return employeesList
                 .stream()
-                .min(Comparator.comparingDouble(Employee::getSalary));
+                .min(Comparator.comparingDouble(Employee::salary));
     }
 
-    public void salaryStatistics(List<Employee> employeesList){
+    public DoubleSummaryStatistics salaryStatistics(List<Employee> employeesList){
         if (employeesList.isEmpty()){
             System.out.println("Empty List");
-            return;
         }
-        DoubleSummaryStatistics doubleStatistics = employeesList
+       return employeesList
                 .stream()
-                .mapToDouble(Employee::getSalary)
+                .mapToDouble(Employee::salary)
                 .summaryStatistics();
-        System.out.println("Number of Employees: " + doubleStatistics.getCount());
-        System.out.println("Salary Average : $" + doubleStatistics.getAverage());
-        System.out.println("Lowest Salary : $" + doubleStatistics.getMin());
-        System.out.println("Highest Salary $: " + doubleStatistics.getMax());
     }
 }
