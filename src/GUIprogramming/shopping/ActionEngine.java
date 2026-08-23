@@ -5,15 +5,15 @@ import java.util.List;
 
 public class ActionEngine {
 
-     List<Action> history = new ArrayList<>();
-     List<Action> undoStack = new ArrayList<>();
+     private final List<Action> history = new ArrayList<>();
+     private final List<Action> undoStack = new ArrayList<>();
 
      public void createAction(String description){
+         undoStack.clear();
 
-         if (!description.isEmpty()){
-             Action a = new Action(description.trim());
-             history.add(a);
-         }
+         if (description == null || description.isBlank()) return;
+         Action a = new Action(description.trim());
+         history.add(a);
      }
 
      public List<String> getHistory(){

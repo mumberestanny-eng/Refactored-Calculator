@@ -1,6 +1,9 @@
 # Desktop Shopping Action Tracker (Java Swing & AWT)
 
-A modular desktop application built with **Java Swing**, designed to track user operations and text transformations. The project has been refactored to enforce **SOLID principles**, isolating UI components from underlying event evaluation and business logic.
+A modular desktop application built with
+**Java Swing**, designed to track user operations and text transformations.
+The project has been refactored to enforce **SOLID principles**, 
+isolating UI components from underlying event evaluation and business logic.
 
 ---
 
@@ -17,7 +20,7 @@ src/
         ├── RoundedBorder.java       # Custom Swing UI component decorator
         ├── RoundedButton.java       # Custom Swing UI button styling
         ├── SimpleActionTracker.java # Main Swing JFrame UI presentation layer
-        └── TextConverter.java       # String formatting and text utility module
+        └── LabelFactory.java       # String formatting and text utility module
 
 🛠️ Key Architectural & Refactoring Highlights
 
@@ -29,7 +32,7 @@ managing layout managers, and capturing user interface events.
 Business Logic (ActionEngine): Encapsulates core state management and operational evaluation, 
 completely decoupled from Swing components.
 
-Domain & Utilities (Action, TextConverter): Handles object modeling and string manipulation independently.
+Domain & Utilities (Action, LabelFactory): Handles object modeling and string manipulation independently.
 
 2. Custom Swing Component Styling
 

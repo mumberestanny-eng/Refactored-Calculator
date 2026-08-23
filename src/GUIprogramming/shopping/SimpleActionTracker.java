@@ -15,7 +15,7 @@ public class SimpleActionTracker extends JFrame {
         public final Color BORDER_COLOR = new Color(70, 73, 75);
 
         private final ActionEngine actionController = new  ActionEngine();
-        private final LabelFactory textConverter = new LabelFactory();
+        private final LabelFactory labelFactory = new LabelFactory();
 
         private final Font FONT_BUTTON = new Font("Lexend", Font.PLAIN, 15);
         private final Font FONT_LABEL = new Font("Arial", Font.PLAIN, 15);
@@ -107,7 +107,7 @@ public class SimpleActionTracker extends JFrame {
             JScrollPane redoScroll = new JScrollPane(redoPanel);
 
             redoScroll.setBorder(BorderFactory.createTitledBorder(
-                    new RoundedBorder(BORDER_COLOR, 2, 15), "Undo Stack (undoStack)"));
+                    new RoundedBorder(BORDER_COLOR, 2, 15), "Redo Stack (redoStack)"));
             return redoScroll;
         }
 
@@ -120,7 +120,7 @@ public class SimpleActionTracker extends JFrame {
             JScrollPane undoScroll = new JScrollPane(undoPanel);
 
             undoScroll.setBorder(BorderFactory.createTitledBorder(
-                    new RoundedBorder(BORDER_COLOR, 2, 15), "Active History (history)"));
+                    new RoundedBorder(BORDER_COLOR, 2, 15), "Undo Stack (undoStack)"));
             return undoScroll;
         }
 
@@ -198,11 +198,11 @@ public class SimpleActionTracker extends JFrame {
             undoPanel.removeAll();
             redoPanel.removeAll();
 
-            for (JLabel lb : textConverter.createActiveLabelCollection(actionController.getHistory())){
+            for (JLabel lb : labelFactory.createActiveLabelCollection(actionController.getHistory())){
                 undoPanel.add(lb);
             }
 
-            for (JLabel lb : textConverter.createActiveLabelCollection(actionController.getUndoStack())){
+            for (JLabel lb : labelFactory.createActiveLabelCollection(actionController.getUndoStack())){
                 redoPanel.add(lb);
             }
             undoPanel.revalidate();
