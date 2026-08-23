@@ -46,7 +46,7 @@ Module Overview
 
 How to Run
     Requirements
-        Java JDK 17 or higher
+        Java JDK 19 or higher
         Any standard Java IDE (IntelliJ IDEA, Eclipse) or CLI terminal
 
     Running Benchmarks

@@ -3,10 +3,8 @@ package multibaygaragesimulator.executiontimecheck;
 import multibaygaragesimulator.model.ServiceReport;
 
 import java.util.concurrent.*;
+import java.util.*;
 
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class ThreadsExecutionTime {
 
@@ -14,39 +12,41 @@ public class ThreadsExecutionTime {
         List<Callable<ServiceReport>> callables = new ArrayList<>();
         for (ServiceReport report : serviceReports) {
             callables.add(() -> {
-                Thread.sleep((long) report.getDurationMs());
+                Thread.sleep((long) report.duration());
                 return report;
             });
         }
         return callables;
     }
 
-    public static void runSimulationWithSingleThread(List<ServiceReport> serviceReports) throws InterruptedException {
+    public static void runBenchMark(List<ServiceReport> serviceReports) throws InterruptedException {
         if (serviceReports.isEmpty()) throw new IllegalArgumentException("Service report list is empty");
 
         // 1. Sequential Execution (1 Thread)
         List<Callable<ServiceReport>> sequentialTasks = createTasks(serviceReports);
-        ExecutorService singleExecutor = Executors.newSingleThreadExecutor();
+        List<Future<ServiceReport>> futures;
 
-        long startTime = System.currentTimeMillis();
-        List<Future<ServiceReport>> futures = singleExecutor.invokeAll(sequentialTasks);
-        singleExecutor.shutdown();
-        long sequentialTiming = System.currentTimeMillis() - startTime;
+        long startTime = System.nanoTime();
+        try (var singleExecutor = Executors.newSingleThreadExecutor()){
+            futures = singleExecutor.invokeAll(sequentialTasks);
+        }
+        long sequentialTiming = System.nanoTime() - startTime;
+
 
         // 2. Parallel Execution (4 Threads)
         List<Callable<ServiceReport>> parallelTasks = createTasks(serviceReports);
-        ExecutorService poolExecutor = Executors.newFixedThreadPool(4);
+        long startTime2 = System.nanoTime();
 
-        long startTime2 = System.currentTimeMillis();
-        poolExecutor.invokeAll(parallelTasks);
-        poolExecutor.shutdown();
-        long parallelTiming = System.currentTimeMillis() - startTime2;
+        try (var poolExecutor = Executors.newFixedThreadPool(4)){
+            List<Future<ServiceReport>> futures1 = poolExecutor.invokeAll(parallelTasks);
+        }
+        long parallelTiming = System.nanoTime() - startTime2;
 
 
         System.out.println("=======================================");
         System.out.println("EXECUTION TIME TEST OF " + serviceReports.size() + " SERVICE JOBS");
-        System.out.println("Execution time with 1 thread : " + sequentialTiming + " ms");
-        System.out.println("Execution time with 4 threads: " + parallelTiming + " ms\n");
+        System.out.println("Execution time with 1 thread : " + sequentialTiming * Math.pow(10, -6) + " ms"); // To actually convert those nano into milliseconds
+        System.out.println("Execution time with 4 threads: " + parallelTiming * Math.pow(10, -6)+ " ms\n");
 
         double speedUpFactor = (double) sequentialTiming / parallelTiming;
         System.out.printf("Speedup factor gain         : %.2fx%n%n", speedUpFactor);
@@ -75,7 +75,7 @@ public class ThreadsExecutionTime {
                 new ServiceReport(8, "Brake pad replacement", 200, true)
         );
 
-        runSimulationWithSingleThread(serviceReports);
+        runBenchMark(serviceReports);
 
         System.out.println("\nSimulation end......");
     }

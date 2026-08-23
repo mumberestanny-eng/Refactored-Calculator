@@ -17,12 +17,12 @@ public class NonTimeLockGarage {
                 try{
                     Thread.sleep(100);
                 }
-               catch (InterruptedException _){Thread.currentThread().interrupt();}
+               catch (InterruptedException e){Thread.currentThread().interrupt();}
                 synchronized (lift){
                     System.out.println(Thread.currentThread().getName()+" has acquired the lift, starting work!");
                     try{
                         Thread.sleep(500);
-                    } catch (InterruptedException _){Thread.currentThread().interrupt();}
+                    } catch (InterruptedException e){Thread.currentThread().interrupt();}
                 }
             }
         };
@@ -33,12 +33,12 @@ public class NonTimeLockGarage {
                 try{
                     Thread.sleep(500);
                 }
-                catch (InterruptedException _){Thread.currentThread().interrupt();}
+                catch (InterruptedException e){Thread.currentThread().interrupt();}
                 synchronized (scanner){
                     System.out.println(Thread.currentThread().getName()+" has acquired the scanner, starting work!");
                     try{
                         Thread.sleep(100);
-                    } catch (InterruptedException _){Thread.currentThread().interrupt();}
+                    } catch (InterruptedException e){Thread.currentThread().interrupt();}
                 }
             }
         };
@@ -52,6 +52,5 @@ public class NonTimeLockGarage {
         mechanic1Task.join();
         mechanic2Task.join();
 
-        System.out.println("Gone finishing");
     }
 }
