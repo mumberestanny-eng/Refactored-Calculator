@@ -73,7 +73,7 @@ public class ExpenseTrackerPro extends JFrame {
         addButton.setForeground(Color.WHITE);
         addButton.setFocusPainted(false);
 
-        addButton.addActionListener((ActionEvent) -> {
+        addButton.addActionListener(e -> {
             inputHandler();
             printOnPane();
         });
@@ -221,10 +221,11 @@ public class ExpenseTrackerPro extends JFrame {
             Font labeFont = new Font("Consolas", Font.PLAIN, 17);
             label.setFont(labeFont);
             label.setForeground(Color.ORANGE);
-            label.setText(" Total Computed → $"+ String.format("%.3f", expenseManager.getTotal()));
+            label.setText(" Total Computed → $"+ String.format("%.2f", expenseManager.getTotal()));
             totalPanel.add(label);
         }
         totalPanel.revalidate();
+        totalPanel.repaint();
     }
 
     public static void main(String[] args) {

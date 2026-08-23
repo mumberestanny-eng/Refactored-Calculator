@@ -1,8 +1,6 @@
 package shop.shoppingtracker;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 public class ExpenseManager {
     private final List<Expense> expenses = new ArrayList<>();

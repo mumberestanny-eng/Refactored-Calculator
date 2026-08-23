@@ -2,11 +2,10 @@ package shop.shoppingtracker.trackerstyling.ExportCSV;
 
 import shop.shoppingtracker.Expense;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Locale;
 
 public class ExportToCSV {
 
@@ -15,13 +14,13 @@ public class ExportToCSV {
             throw new IllegalArgumentException("Cannot export an empty expense list.");
         }
 
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(destination))) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(destination, StandardCharsets.UTF_8))) {
             writer.write("Item,Price");
             writer.newLine();
 
             double total = 0.0;
             for (Expense ex : expenses) {
-                writer.write(escapeCsv(ex.getName()) + "," + String.format("%.2f", ex.getAmount()));
+                writer.write(escapeCsv(ex.getName()) + "," + String.format(Locale.US, "%.2f", ex.getAmount()));
                 writer.newLine();
                 total += ex.getAmount();
             }
