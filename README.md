@@ -1,67 +1,134 @@
-# Multi-Bay Garage Simulator
+# Mechanic Workshop Analyser
 
-A concurrent Java application demonstrating multi-threaded worker management, asynchronous result aggregation, concurrency benchmarking, intentional deadlock diagnosis, and resolution using timed lock acquisition.
-
----
-
-## Core Features
-
-* **Thread Pool Management:** Uses `ExecutorService` to simulate concurrent mechanic bays executing service jobs asynchronously.
-* **Callable & Future Aggregation:** Models garage service operations as `Callable<ServiceReport>` tasks that return execution summaries via `Future` handles.
-* **Performance Benchmarking:** Compares single-threaded sequential execution against a multi-threaded fixed thread pool to calculate real-world parallel speedup (Speedup = sequential / parallel).
-* **Deadlock Simulation & Analysis:** Demonstrates circular resource contention (`DiagnosticScanner` vs. `HydraulicLift`) using standard intrinsic locking.
-* **Timed Lock Resolution:** Resolves thread contention and prevents permanent deadlocks using `ReentrantLock.tryLock()` with timeout recovery mechanisms.
+A modular, functional Java application designed to parse CSV datasets (`employees_100.csv`, parts files), 
+model core workshop domain entities, analyze inventory stock, and evaluate employee payroll metrics using 
+Java Streams and functional programming paradigms.
 
 ---
 
-## Project Structure
+## Architecture & System Design
+
+The system relies on immutable domain models, custom CSV parsers, dedicated functional analytical modules, and main executable classes:
 
 ```text
+                           +------------------------+
+                           |     CsvFileParser      |
+                           +-----------+------------+
+                                       |
+                       +---------------+---------------+
+                       |                               |
+                       v                               v
+                +-------------+                 +--------------+
+                |    Part     |                 |   Employee   |
+                +------+------+                 +------+-------+
+                       |                               |
+                       v                               v
+           +-----------------------+       +-----------------------+
+           | WorkShopPartAnalyser  |       |WorkShopEmployeeAnalyser|
+           +-----------+-----------+       +-----------+-----------+
+                       |                               |
+                       v                               v
+           +-----------------------+       +-----------------------+
+           |     PartAnalyser      |       |   EmployeeAnalyser    |
+           |     (Main Entry)      |       |     (Main Entry)      |
+           +-----------------------+       +-----------------------+
 
-multibaygaragesimulator/
-├── model/
-│   ├── DiagnosticScanner.java     # Shared diagnostic tool resource
-│   ├── HydraulicLift.java         # Shared lifting equipment resource
-│   └── ServiceReport.java         # Data model for service execution metrics
-├── executiontimecheck/
-│   └── ThreadsExecutionTime.java  # Single-thread vs multi-thread benchmarking suite
-└── deadlocktest/
-    ├── NonTimeLockGarage.java     # Reproduces classic circular wait deadlock
-    └── TimeLockGarage.java        # Resolves deadlock via ReentrantLock tryLock()
+Core Domain Models
+Part (mechanic.Part): Models workshop inventory attributes:
 
-Module Overview
-1. Domain Models ( model)
-    ServiceReport: Encapsulates service job details including job ID, description, duration, and status.
-    DiagnosticScanner& HydraulicLift: Represent physical garage equipment requiring mutual exclusion across active mechanic threads.
+        **name (String)
+        **category (String)
+        **price (double)       
+        **stock (int)       
+        **supplier (String)
 
-2. Execution Benchmarking ( executiontimecheck)
-    ThreadsExecutionTime: Submits a batch of service jobs to a SingleThreadExecutorand a 4-thread FixedThreadPool.
-    Calculates total elapsed time and prints the resulting speedup factor.
+Employee (mechanic.Employee): Models workshop staff attributes:
 
-3. Concurrency Safety & Deadlocks ( deadlocktest)
-    NonTimeLockGarage: Simulates two threads attempting to acquire DiagnosticScannerand HydraulicLiftin opposite orders,
-    triggering an unrecoverable deadlock detectable via jstack.
-    TimeLockGarage: Replaces standard intrinsic locks with explicit
-    ReentrantLock.tryLock(timeout, timeUnit)calls to ensure threads back off gracefully on resource contention.
+        **name (String)       
+        **work (String)        
+        **department (String)        
+        **salary (double)
+
+Features
+📁 CSV File Parser (mechanic.workshop.partanalyser.csvhandler.CsvFileParser)
+Handles file I/O and converts CSV input lines into domain models:
+
+        **NIO File Reading: Uses Files.readAllLines for efficient parsing.       
+        **Validation & Cleaning: Automatically ignores CSV headers and drops lines that do not match expected column counts (5 columns for Part, 4 columns for Employee).        
+        **Ingestion: Trims whitespace and handles parsing operations gracefully.
+
+🛠️ Workshop Part Analyser (mechanic.workshop.partanalyser.WorkShopPartAnalyser)
+Provides detailed analytics and reporting for workshop inventory:
+
+        **Filtering & Ordering: Query parts by minimum price floor or custom stock thresholds.
+        **Reorder & Critical Stock Tracking: Identifies critical items (stock $\le 1$) and generates low-stock warnings (stock $< 3$).
+        **Group Aggregation: Computes category counts, supplier groupings, and category-level average prices.
+        **Financial Statistics: Summarizes full inventory monetary value ($Price \times Stock$) and outputs comprehensive metrics (DoubleSummaryStatistics).
+
+👥 Workshop Employee Analyser (mechanic.workshop.WorkShopEmployeeAnalyser)
+Delivers administration and payroll metrics:
+
+        **Staff Directory: Aggregates distinct employees, departments, and specific roles.
+        **Salary Analytics: Groups average salaries by department and role; highlights top earners and low-income thresholds.
+        **Hierarchical Sorting: Sorts employee records sequentially by Name $\rightarrow$ Salary (Descending) $\rightarrow$ Department $\rightarrow$ Role.
+        **Payroll Overview: Generates summary headcount, lowest, highest, and average compensation statistics.
+
+Exact Directory Structure
+
+        src/
+        ├── mechanic/
+        │   ├── Employee.java                         # Employee Entity Model
+        │   ├── Part.java                             # Part Entity Model
+        │   └── workshop/
+        │       ├── PartAnalyser.java                 # Main Executable: Inventory Analysis CLI
+        │       ├── WorkShopEmployeeAnalyser.java    # Employee Analytics Processor
+        │       └── partanalyser/
+        │           ├── EmployeeAnalyser.java         # Main Executable: Workforce Analysis CLI
+        │           ├── WorkShopPartAnalyser.java    # Inventory Analytics Processor
+        │           └── csvhandler/
+        │               └── CsvFileParser.java      # CSV Ingestion & Entity Transformer
+        ├── com/                                      # Application package
+        ├── GUIprogramming/                           # UI components
+        ├── shop/                                     # Shop module
+        │   └── Main.java                             # Application entry point
+        ├── employees_100.csv                         # Workforce Dataset
+        ├── Expenses.csv                              # Expenses Dataset
+        └── .gitignore                                # Git ignore file
+
+Requirements
+
+        ->Java Development Kit (JDK): 17 or higher (utilizes Stream.toList(), 
+        ->Files.readAllLines, and enhanced Java Streams API features).
+
+Expected Input CSV Specifications
+Parts CSV File (garage_parts_100.csv)
+Structure: Name, Category, Price, Stock, Supplier
+
+        Name, Category, Price, Stock, Supplier
+        Brake Pad, Brakes, 45.50, 12, Bosch
+        Oil Filter, Engine, 12.00, 2, Fram
+        Spark Plug, Engine, 8.75, 0, NGK
+
+Employees CSV File (employees_100.csv)
+Structure: Name, Work, Department, Salary
+
+        Name, Work, Department, Salary
+        John Doe, Mechanic, Maintenance, 45000.00
+        Jane Smith, Manager, Logistics, 65000.00
 
 How to Run
-    Requirements
-        Java JDK 19 or higher
-        Any standard Java IDE (IntelliJ IDEA, Eclipse) or CLI terminal
+1. Compile the Project
+Open a terminal in the root directory of the project containing the src/ folder and run:
 
-    Running Benchmarks
-        Execute ThreadsExecutionTime.java to view the parallel speedup log:
-          java multibaygaragesimulator.executiontimecheck.ThreadsExecutionTime
+        javac -d bin (find src -name "*.java")
 
-Reproducing & Diagnosing Deadlock
-    1. Run NonTimeLockGarage.java.
-    
-    2. Inspect the terminal to confirm execution has halted.
-    
-    3. Open a terminal and extract the active thread dump:
-        jps          # Locate PID for NonTimeLockGarage
-        jstack <PID> # View deadlock report
-        
-Running Deadlock Recovery
-    Execute TimeLockGarage.javato verify automatic lock backoff and clean execution completion:
-      java multibaygaragesimulator.deadlocktest.TimeLockGarage
+2. Execute Inventory Analysis (PartAnalyser)
+Executes the main entry point processing garage_parts_100.csv:
+
+        java -cp bin mechanic.workshop.PartAnalyser
+
+3. Execute Workforce & Payroll Analysis (EmployeeAnalyser)
+Executes the main entry point processing employees_100.csv:
+
+        java -cp bin mechanic.workshop.partanalyser.EmployeeAnalyser
+
