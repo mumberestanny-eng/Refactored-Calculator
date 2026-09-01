@@ -162,16 +162,4 @@ public class WorkShopPartAnalyser {
 
 }
 
-/*
 
-
-avgSup
-
-System.out.println("___Critical Stock Parts__");
-        criticalStock.forEach((isLow, part) -> System.out.println("Is stock low?: "+isLow+" Part: "+part));
-
-System.out.println("___Highest Price By Category__");
-        highestPriceByCat
-
-
- */
