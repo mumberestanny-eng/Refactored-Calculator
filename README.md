@@ -1,67 +1,82 @@
-# Multi-Bay Garage Simulator
+# Expense Tracker Pro 📊
 
-A concurrent Java application demonstrating multi-threaded worker management, asynchronous result aggregation, concurrency benchmarking, intentional deadlock diagnosis, and resolution using timed lock acquisition.
-
----
-
-## Core Features
-
-* **Thread Pool Management:** Uses `ExecutorService` to simulate concurrent mechanic bays executing service jobs asynchronously.
-* **Callable & Future Aggregation:** Models garage service operations as `Callable<ServiceReport>` tasks that return execution summaries via `Future` handles.
-* **Performance Benchmarking:** Compares single-threaded sequential execution against a multi-threaded fixed thread pool to calculate real-world parallel speedup (Speedup = sequential / parallel).
-* **Deadlock Simulation & Analysis:** Demonstrates circular resource contention (`DiagnosticScanner` vs. `HydraulicLift`) using standard intrinsic locking.
-* **Timed Lock Resolution:** Resolves thread contention and prevents permanent deadlocks using `ReentrantLock.tryLock()` with timeout recovery mechanisms.
+A sleek, modern desktop Java Swing application designed to track personal expenses, compute total expenditure in real time, and export data directly to CSV files.
 
 ---
 
-## Project Structure
+## 🌟 Key Features
+
+* **Modern & Responsive UI:** Custom rounded buttons, custom borders, and dynamic component styling.
+* **Real-Time Total Calculation:** Instant aggregation and display of total expenditure.
+* **Input Validation & Safety:** Exception handling for invalid numeric prices and empty text inputs.
+* **CSV Data Export:** Clean export of itemized expenses to `.csv` format for easy reporting and accounting.
+* **Clean Architecture:** Built using Object-Oriented Principles (OOP) with clear separation between Data Models, State Controllers, File I/O, and Swing View components.
+
+---
+
+## 🏗️ Architecture & Project Structure
+
+The project follows the **Separation of Concerns (SoC)** principle:
 
 ```text
+src/
+└── shop/
+    └── shoppingtracker/
+        ├── Expense.java                  # Pure immutable domain model
+        ├── ExpenseManager.java           # In-memory state controller & business logic
+        ├── ExpenseTrackerPro.java        # Swing GUI view & layout container
+        └── trackerstyling/
+            ├── RoundedBorder.java        # Custom border UI component
+            ├── RoundedButton.java        # Custom button UI component
+            └── ExportCSV/
+                └── ExportToCSV.java      # Dedicated CSV file I/O service
 
-multibaygaragesimulator/
-├── model/
-│   ├── DiagnosticScanner.java     # Shared diagnostic tool resource
-│   ├── HydraulicLift.java         # Shared lifting equipment resource
-│   └── ServiceReport.java         # Data model for service execution metrics
-├── executiontimecheck/
-│   └── ThreadsExecutionTime.java  # Single-thread vs multi-thread benchmarking suite
-└── deadlocktest/
-    ├── NonTimeLockGarage.java     # Reproduces classic circular wait deadlock
-    └── TimeLockGarage.java        # Resolves deadlock via ReentrantLock tryLock()
+🎨 Design Highlights & Architectural Principles
 
-Module Overview
-1. Domain Models ( model)
-    ServiceReport: Encapsulates service job details including job ID, description, duration, and status.
-    DiagnosticScanner& HydraulicLift: Represent physical garage equipment requiring mutual exclusion across active mechanic threads.
+Single Responsibility Principle (SRP):
 
-2. Execution Benchmarking ( executiontimecheck)
-    ThreadsExecutionTime: Submits a batch of service jobs to a SingleThreadExecutorand a 4-thread FixedThreadPool.
-    Calculates total elapsed time and prints the resulting speedup factor.
+   Expense: Encapsulates pure item attributes (name, amount).
+   ExpenseManager: Controls in-memory collection state (List<Expense>) and mathematical calculations.
+   ExportToCSV: Handles file output operations, directory selection, and string escaping completely decoupled from Swing logic.
+   ExpenseTrackerPro: Handles UI assembly, layout hierarchy, and event handling.
+   Encapsulation & Safety: Internal lists in ExpenseManager are exposed using Collections.unmodifiableList() to prevent unauthorized mutation from external classes.
+   Robust File I/O & CSV Formatting: Proper string escaping wraps entries containing commas or quotes, preventing generated .csv files from corrupting.
+   UI Defense: Revalidate and repaint operations run alongside input sanitization (try-catch for NumberFormatException) to prevent UI render artifacts and runtime crashes.
 
-3. Concurrency Safety & Deadlocks ( deadlocktest)
-    NonTimeLockGarage: Simulates two threads attempting to acquire DiagnosticScannerand HydraulicLiftin opposite orders,
-    triggering an unrecoverable deadlock detectable via jstack.
-    TimeLockGarage: Replaces standard intrinsic locks with explicit
-    ReentrantLock.tryLock(timeout, timeUnit)calls to ensure threads back off gracefully on resource contention.
+🚀 How to Run the Application
+Prerequisites
+   Java Development Kit (JDK): Version 11 or higher
+   IDE: IntelliJ IDEA, Eclipse, or NetBeans
 
-How to Run
-    Requirements
-        Java JDK 19 or higher
-        Any standard Java IDE (IntelliJ IDEA, Eclipse) or CLI terminal
+Option 1: Running inside IntelliJ IDEA (Recommended)
+   Open the project folder in IntelliJ IDEA.
+   Navigate to src/shop/shoppingtracker/ExpenseTrackerPro.java.
+   Right-click ExpenseTrackerPro.java and select Run 'ExpenseTrackerPro.main()' (or click the green Play button next to the main method).
 
-    Running Benchmarks
-        Execute ThreadsExecutionTime.java to view the parallel speedup log:
-          java multibaygaragesimulator.executiontimecheck.ThreadsExecutionTime
+Option 2: Running via Terminal / Command Line
+   Clone the Repository:
 
-Reproducing & Diagnosing Deadlock
-    1. Run NonTimeLockGarage.java.
+Bash
+   git clone [https://github.com/mumberestanny-eng/Refactored-Calculator.git](https://github.com/mumberestanny-eng/Refactored-Calculator.git)
+   cd Refactored-Calculator
+Compile the Source Files:
+
+Bash
+   javac -d bin src/shop/shoppingtracker/*.java src/shop/shoppingtracker/trackerstyling/*.java src/shop/shoppingtracker/trackerstyling/ExportCSV/*.java
+   Launch the GUI:
+
+Bash
+    java -cp bin shop.shoppingtracker.ExpenseTrackerPro
     
-    2. Inspect the terminal to confirm execution has halted.
-    
-    3. Open a terminal and extract the active thread dump:
-        jps          # Locate PID for NonTimeLockGarage
-        jstack <PID> # View deadlock report
-        
-Running Deadlock Recovery
-    Execute TimeLockGarage.javato verify automatic lock backoff and clean execution completion:
-      java multibaygaragesimulator.deadlocktest.TimeLockGarage
+📸 Usage Workflow
+
+    Enter the Item Name and Item Price in the Input Console.
+    Click Add Item to cart to append the expense to your active list.
+    Click Total to compute the total expenditure in real time.
+    Click Export to CSV to select a file path and save your record!
+
+🛠️ Tech Stack
+
+    Language: Java 11+
+    GUI Framework: Java Swing / AWT
+    Version Control: Git / GitHub
