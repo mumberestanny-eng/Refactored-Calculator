@@ -1,0 +1,101 @@
+Name,Category,Price,Stock,Supplier
+Shock Absorber,Suspension & Steering,289.73,1,Brembo
+Brake Pad Set,Braking System,114.35,8,Denso
+Oil Filter,Engine & Maintenance,306.29,34,Denso
+Fuel Filter,Engine & Maintenance,267.97,2,Bosch
+Air Filter,Engine & Maintenance,47.15,14,Continental
+Spark Plug,Engine & Maintenance,273.10,35,NGK
+Timing Belt,Engine & Maintenance,323.77,44,Continental
+Alternator,Electrical & Ignition,191.98,28,Aisin
+Starter Motor,Electrical & Ignition,129.16,0,ACDelco
+Water Pump,Cooling & Heating,315.82,21,Brembo
+Radiator,Cooling & Heating,74.61,48,Monroe
+Thermostat,Cooling & Heating,50.93,24,Denso
+Control Arm,Suspension & Steering,165.07,22,Aisin
+Ball Joint,Suspension & Steering,123.08,2,Valeo
+Tie Rod End,Suspension & Steering,243.85,24,Denso
+Wheel Bearing,Suspension & Steering,250.88,40,Aisin
+Brake Rotor,Braking System,399.08,23,Aisin
+Brake Caliper,Braking System,90.97,4,Bosch
+Clutch Kit,Transmission & Drivetrain,299.43,49,Brembo
+Flywheel,Transmission & Drivetrain,443.43,14,Denso
+Drive Belt,Engine & Maintenance,174.47,29,Monroe
+Serpentine Belt,Engine & Maintenance,77.80,22,NGK
+Ignition Coil,Electrical & Ignition,303.39,44,Denso
+Fuel Pump,Engine & Maintenance,276.26,10,Continental
+Oxygen Sensor,Electrical & Ignition,329.60,10,Valeo
+MAP Sensor,Electrical & Ignition,174.17,40,Continental
+Throttle Body,Engine & Maintenance,103.12,20,Bosch
+EGR Valve,Engine & Maintenance,107.31,2,Monroe
+Mass Air Flow Sensor,Electrical & Ignition,183.82,4,NGK
+Crankshaft Sensor,Engine & Maintenance,411.39,36,Monroe
+Camshaft Sensor,Engine & Maintenance,100.01,31,Meyle
+ABS Sensor,Electrical & Ignition,398.74,41,Valeo
+Steering Rack,Suspension & Steering,69.01,8,NGK
+Power Steering Pump,Suspension & Steering,336.65,34,Brembo
+CV Joint,Suspension & Steering,337.55,27,Aisin
+Axle Shaft,Suspension & Steering,183.03,14,ACDelco
+Strut Mount,Suspension & Steering,231.98,5,Bosch
+Sway Bar Link,Suspension & Steering,388.26,9,ACDelco
+Engine Mount,Engine & Maintenance,357.58,27,Aisin
+Transmission Mount,Transmission & Drivetrain,33.74,24,Aisin
+Piston Ring Set,Engine & Maintenance,448.28,33,Brembo
+Connecting Rod,Engine & Maintenance,437.14,0,Denso
+Crankshaft,Engine & Maintenance,308.52,34,Brembo
+Camshaft,Engine & Maintenance,347.14,21,Denso
+Cylinder Head Gasket,Engine & Maintenance,135.96,10,Valeo
+Valve Cover Gasket,Engine & Maintenance,6.94,46,Brembo
+Oil Pan Gasket,Engine & Maintenance,437.50,48,ACDelco
+Exhaust Manifold,Engine & Maintenance,231.16,6,Brembo
+Intake Manifold,Engine & Maintenance,379.62,32,Aisin
+Turbocharger,Engine & Maintenance,93.92,23,ACDelco
+Intercooler,Engine & Maintenance,245.25,49,Continental
+Fuel Injector,Engine & Maintenance,413.77,38,Monroe
+Brake Hose,Braking System,222.69,7,Monroe
+Master Cylinder,Braking System,396.09,19,NGK
+Slave Cylinder,Braking System,31.25,36,Denso
+Brake Drum,Braking System,43.57,31,Denso
+Brake Shoe Set,Braking System,440.21,34,ACDelco
+Cabin Air Filter,Engine & Maintenance,62.57,30,Continental
+Transmission Filter,Engine & Maintenance,78.90,33,Aisin
+Solenoid Valve,Engine & Maintenance,193.58,13,Continental
+Valve Body,Transmission & Drivetrain,341.22,44,NGK
+Torque Converter,Transmission & Drivetrain,322.41,25,Monroe
+Transmission Cooler,Transmission & Drivetrain,200.24,33,Valeo
+Distributor,Electrical & Ignition,59.29,14,Denso
+Headlight Assembly,Engine & Maintenance,155.78,37,Continental
+Tail Light Assembly,Electrical & Ignition,107.79,14,Bosch
+Fog Light,Electrical & Ignition,37.06,40,Bosch
+Blower Motor,Cooling & Heating,107.26,2,Monroe
+AC Compressor,Cooling & Heating,37.00,15,Brembo
+AC Condenser,Cooling & Heating,302.86,13,Continental
+Expansion Valve,Engine & Maintenance,64.31,36,Aisin
+Heater Core,Cooling & Heating,215.60,50,Valeo
+Wiper Blade,Engine & Maintenance,364.43,12,Denso
+Washer Pump,Engine & Maintenance,48.59,27,Monroe
+Horn Assembly,Engine & Maintenance,193.78,29,Bosch
+Relay Module,Electrical & Ignition,304.81,41,Denso
+Fuse Box,Electrical & Ignition,32.44,46,Monroe
+Battery Terminal,Electrical & Ignition,361.36,6,NGK
+Alternator Pulley,Electrical & Ignition,90.66,34,Valeo
+Tensioner Pulley,Engine & Maintenance,67.81,11,Brembo
+Idler Pulley,Engine & Maintenance,211.14,4,Valeo
+Oil Pressure Switch,Electrical & Ignition,364.67,35,Denso
+Coolant Temp Sensor,Electrical & Ignition,27.99,34,Bosch
+Knock Sensor,Electrical & Ignition,436.22,48,NGK
+TPS Sensor,Electrical & Ignition,79.43,31,Valeo
+Speed Sensor,Electrical & Ignition,100.51,25,Bosch
+Shift Cable,Engine & Maintenance,78.68,0,Meyle
+Clutch Cable,Transmission & Drivetrain,123.38,50,Valeo
+Accelerator Cable,Engine & Maintenance,132.29,44,Continental
+Handbrake Cable,Engine & Maintenance,299.70,31,ACDelco
+Exhaust Pipe,Engine & Maintenance,89.91,13,Bosch
+Muffler,Engine & Maintenance,262.95,34,Bosch
+Catalytic Converter,Engine & Maintenance,337.98,3,Bosch
+Resonator,Engine & Maintenance,265.17,32,Continental
+Flex Pipe,Engine & Maintenance,75.48,32,Denso
+Universal Joint,Suspension & Steering,383.92,4,Aisin
+Differential Gasket,Engine & Maintenance,35.71,15,Meyle
+Wheel Cylinder,Engine & Maintenance,58.79,36,NGK
+Pillar Trim,Engine & Maintenance,262.83,2,Aisin
+Door Latch,Engine & Maintenance,41.94,42,Aisin
